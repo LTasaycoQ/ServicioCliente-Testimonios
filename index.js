@@ -1,30 +1,30 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
-const cors = require('cors');
 const PDFDocument = require("pdfkit");
+const cors = require('cors');
 
 const app = express();
 
-app.use(cors({ origin: '*', optionsSuccessStatus: 200 }));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const EMAIL_USER = "luistasayco3030@gmail.com";
-const EMAIL_PASS = "xkii szmn wopp rqdr";
+const EMAIL_USER = "noreply.fiestatoursperu@gmail.com";
+const EMAIL_PASS = "ztcn lsxw sbwy mktw";
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-        user: EMAIL_USER,
-        pass: EMAIL_PASS,
-    }
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: EMAIL_USER,
+    pass: EMAIL_PASS,
+  }
 });
 
 app.post('/evaluacion', async (req, res) => {
     const {
-        idioma, nombre, email, fecha,
+        nombre, email, fecha,
         hotelTransfer = [], restaurantes = [],
         tours = [], hotel = [],
         comentarioHotelTransfer,
@@ -44,10 +44,12 @@ app.post('/evaluacion', async (req, res) => {
 
         doc.on("end", async () => {
             const pdfData = Buffer.concat(buffers);
-
+// marco.paredes@fiestatoursperu.com
+// repevacusco@gmail.com
             await transporter.sendMail({
                 from: `"Fiesta Tours Peru" <${EMAIL_USER}>`,
-                to: "dw@fiestatoursperu.com",
+                to: "repevacusco@gmail.com, marco.paredes@fiestatoursperu.com",
+                // to: "dw@fiestatoursperu.com",
                 subject: `Evaluacion Viaje - ${nombre}`,
                   html: `
                     <div style="background:#f4f6f5; padding:20px 0;">
@@ -66,15 +68,14 @@ app.post('/evaluacion', async (req, res) => {
 
                     <!-- Datos -->
                     <tr>
-                    <td align="center" style="font-size:14px; color:#555;">
-                    <strong><span style="color:green;">Idioma Registrado: </span>${idioma}</strong><br>
-                    <strong>${nombre}</strong><br>
-                    ${email}<br>
-                    ${fecha}
+                    <td align="start" style="font-size:14px; color:#555;">
+                    <br>
+                    <strong><span style="color:green">Nombre: </span> ${nombre}</strong>
+                    <br>
+                     <strong><span style="color:green">Fecha: </span> ${fecha}
                     </td>
                     </tr>
 
-                    <tr><td height="10"></td></tr>
 
                     <!-- HOTEL TRANSFER -->
                     <tr>
@@ -104,7 +105,8 @@ app.post('/evaluacion', async (req, res) => {
                     </td>
                     </tr>
 
-                    <tr><td height="20"></td></tr>
+                    <tr><td style="border-bottom:1px solid gray"></td></tr>
+
 
                     <!-- TOURS -->
                     <tr>
@@ -134,9 +136,9 @@ app.post('/evaluacion', async (req, res) => {
                     </td>
                     </tr>
 
-                    <tr><td height="20"></td></tr>
+                    <tr><td style="border-bottom:1px solid gray"></td></tr>
 
-                    <!-- HOTELES -->
+
                     <tr>
                     <td>
                     <h3 style="color:#2e7d32;">Hoteles</h3>
@@ -164,9 +166,8 @@ app.post('/evaluacion', async (req, res) => {
                     </td>
                     </tr>
 
-                    <tr><td height="20"></td></tr>
+                   <tr><td style="border-bottom:1px solid gray"></td></tr>
 
-                    <!-- RESTAURANTES -->
                     <tr>
                     <td>
                     <h3 style="color:#2e7d32;">Restaurantes</h3>
@@ -194,7 +195,8 @@ app.post('/evaluacion', async (req, res) => {
                     </td>
                     </tr>
 
-                    <tr><td height="20"></td></tr>
+                    <tr><td style="border-bottom:1px solid gray"></td></tr>
+
 
                     <!-- COMENTARIO GENERAL -->
                     <tr>
@@ -206,9 +208,18 @@ app.post('/evaluacion', async (req, res) => {
                     </td>
                     </tr>
 
-                    <tr><td height="20"></td></tr>
 
-                    <!-- CALIFICACIÓN -->
+
+                    <!-- Datos Email -->
+                    <tr>
+                    <td>
+                    <h3 style="color:#105A40;">Email</h3>
+                    <div style="background:#f4f6f5; border:1px solid #e0e0e0; padding:12px; border-radius:6px; font-size:14px;">
+                    ${email || " - "}
+                    </div>
+                    </td>
+                    </tr>
+
                     <tr>
                     <td align="center">
                     <h3 style="color:#2e7d32; margin:0;">
@@ -219,10 +230,9 @@ app.post('/evaluacion', async (req, res) => {
 
                     <tr><td height="20"></td></tr>
 
-                    <!-- FOOTER -->
                     <tr>
                     <td align="center" style="font-size:12px; color:#888;">
-                    Gracias por elegir Peru Luxury Journeys
+                    Fiesta Tours Peru & Peru Luxury Journeys
                     </td>
                     </tr>
 
@@ -245,18 +255,15 @@ app.post('/evaluacion', async (req, res) => {
             res.json({ mensaje: '¡Correo enviado con éxito!' });
         });
 
-        // 🎨 COLORES
         const green = "#2e7d32";
         const gray = "#666";
 
-        // 🔥 CONTROL DE SALTO DE PÁGINA
         const checkPageBreak = (margin = 80) => {
             if (doc.y > doc.page.height - margin) {
                 doc.addPage();
             }
         };
 
-        // 🧱 HEADER
         doc.fillColor("#223e58")
             .font("Helvetica-Bold")
             .fontSize(18)
@@ -264,15 +271,35 @@ app.post('/evaluacion', async (req, res) => {
 
         doc.moveDown(1);
 
-        doc.fillColor(gray)
-            .fontSize(10)
-            .text(nombre || "-", { align: "center" })
-            .text(email || "-", { align: "center" })
-            .text(fecha || "-", { align: "center" });
 
+         doc
+        .fillColor('green')
+        .fontSize(12)
+        .font('Helvetica-Bold')
+        .text('Nombre: ', { continued: true });
+        
+        doc
+        .fillColor("#3f3f3f")
+        .font('Helvetica-Bold')
+        .fontSize(12)
+        .text(nombre);
+
+        doc.moveDown(1);
+         doc
+        .fillColor('green')
+        .fontSize(12)
+        .font('Helvetica-Bold')
+        .text('Fecha: ', { continued: true });
+        
+        doc
+        .fillColor("#3f3f3f")
+        .font('Helvetica-Bold')
+        .fontSize(12)
+        .text(fecha);
+
+       
         doc.moveDown(2);
 
-        // 📊 SECCIONES
         const drawSection = (titulo, data, getName, getValue) => {
             checkPageBreak();
 
@@ -318,7 +345,6 @@ app.post('/evaluacion', async (req, res) => {
             doc.moveDown(1);
         };
 
-        // 📝 COMENTARIOS
         const drawComment = (titulo, texto) => {
             checkPageBreak();
 
@@ -339,13 +365,16 @@ app.post('/evaluacion', async (req, res) => {
             doc.moveDown(2);
         };
 
-        // 🔽 CONTENIDO
         drawSection("Hotel Transfer", hotelTransfer,
             i => i.hotelTransfer_name || "-",
             i => i.hotelTransfer_calificacion || "-"
         );
 
         drawComment("Comentario Hotel Transfer", comentarioHotelTransfer);
+
+        drawLine(doc);
+        doc.moveDown(2);
+
 
         drawSection("Tours y Guías", tours,
             i => i.tours_name || "-",
@@ -354,6 +383,10 @@ app.post('/evaluacion', async (req, res) => {
 
         drawComment("Comentario Tours Guia", comentariosToursGuia);
 
+        drawLine(doc);
+        doc.moveDown(2);
+
+
         drawSection("Hoteles", hotel,
             i => `${i.hotel_ubicacion || "-"} - ${i.hotel_name || "-"}`,
             i => i.hotel_calificacion || "-"
@@ -361,17 +394,40 @@ app.post('/evaluacion', async (req, res) => {
 
         drawComment("Comentario Hotel", comentarioHotel);
 
+        drawLine(doc);
+        doc.moveDown(2);
+
+
         drawSection("Restaurantes", restaurantes,
             i => `${i.restaurante_ubicacion || "-"} - ${i.restaurante_name || "-"}`,
             i => i.restaurante_calificacion || "-"
         );
 
         drawComment("Comentario Restaurantes", comentarioRestaurante);
+        drawLine(doc);
+        doc.moveDown(2);
 
         drawComment("Comentarios Generales", comentario);
+        
+        doc.moveDown(2);
 
-        // ⭐ FINAL
+
+        doc
+        .fillColor('green')
+        .fontSize(10)                
+        .font("Helvetica-Bold")
+
+        .text('Email: ', { continued: true });
+
         checkPageBreak();
+
+        doc
+        .fillColor("#3f3f3f")
+        .font("Helvetica-Bold")
+
+        .text(email || '-');
+
+        doc.moveDown(4);
 
         doc.fillColor("#1f1f1f")
             .font("Helvetica-Bold")
@@ -382,7 +438,7 @@ app.post('/evaluacion', async (req, res) => {
 
         doc.moveDown(2);
 
-        doc.fillColor("#aaa")
+        doc.fillColor("#646464")
             .fontSize(9)
             .text("Fiesta Tours Peru & Peru Luxury Journeys", {
                 align: "center"
@@ -395,6 +451,20 @@ app.post('/evaluacion', async (req, res) => {
         res.status(500).json({ mensaje: 'Error interno en el servidor' });
     }
 });
+
+
+
+function drawLine(doc) {
+  doc.moveDown(0.5);
+
+  doc.strokeColor('#cccccc')
+     .lineWidth(1)
+     .moveTo(50, doc.y)
+     .lineTo(550, doc.y)
+     .stroke();
+
+  doc.moveDown(0.5);
+}
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, '0.0.0.0', () => {
